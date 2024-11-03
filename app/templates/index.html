@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Travel Insight Network</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Smart Travel Insight Network (STIN)</h1>
+        <div id="current-date"></div>
+    </header>
+    <main>
+        <button onclick="window.location.href='{{ url_for("add_visit") }}'">Add a Visit</button>
+        <section id="visit-list">
+            <h2>Upcoming Visits</h2>
+            {% for visit in visits %}
+                <div class="visit-item">
+                    <img src="{{ url_for('static', filename='photos/' ~ visit[3]) }}" alt="{{ visit[1] }}">
+                    <h3>{{ visit[1] }} - {{ visit[2] }}</h3>
+                    <button onclick="joinVisit('{{ visit[0] }}')">Join</button>
+                    <div id="comments-{{ visit[0] }}" class="comments">
+                        <!-- Comments will be loaded here -->
+                    </div>
+                    <form class="comment-form" data-visit-id="{{ visit[0] }}">
+                        <input type="text" class="comment-input" placeholder="Your Comment" required>
+                        <button type="submit">Add Comment</button>
+                    </form>
+                </div>
+            {% endfor %}
+        </section>
+    </main>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+</body>
+</html>
