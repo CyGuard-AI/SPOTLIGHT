@@ -100,4 +100,4 @@ def get_comments(visit_id):
 
 if __name__ == '__main__':
     init_db()
-    app.run(debug=True, port=5017)
+    app.run(debug=True, port=5019)
