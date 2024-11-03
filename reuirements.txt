@@ -1,0 +1,6 @@
+db_config = {
+    'user': 'admin',
+    'password': 'StrongP@ssw0rd',
+    'host': 'localhost',
+    'database': 'stin_db'
+}
