@@ -12,22 +12,28 @@
         <div id="current-date"></div>
     </header>
     <main>
-        <button onclick="window.location.href='{{ url_for("add_visit") }}'">Add a Visit</button>
+        <button onclick="window.location.href='{{ url_for('add_visit') }}'">Add a Visit</button>
         <section id="visit-list">
             <h2>Upcoming Visits</h2>
             {% for visit in visits %}
                 <div class="visit-item">
-                    <img src="{{ url_for('static', filename='photos/' ~ visit[3]) }}" alt="{{ visit[1] }}">
-                    <h3>{{ visit[1] }} - {{ visit[2] }}</h3>
-                    <button onclick="joinVisit('{{ visit[0] }}')">Join</button>
-                    <div id="comments-{{ visit[0] }}" class="comments">
-                        <!-- Comments will be loaded here -->
+                    {% if visit['photo'] %}
+                        <img src="{{ url_for('static', filename='photos/' + visit['photo']) }}" alt="{{ visit['place_name'] }}">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='photos/default.png') }}" alt="No Image">
+                    {% endif %}
+                    <div>
+                        <h3>{{ visit['place_name'] }} - {{ visit['visit_date'] }}</h3>
+                        <button onclick="joinVisit('{{ visit['id'] }}')">Join</button>
                     </div>
-                    <form class="comment-form" data-visit-id="{{ visit[0] }}">
-                        <input type="text" class="comment-input" placeholder="Your Comment" required>
-                        <button type="submit">Add Comment</button>
-                    </form>
                 </div>
+                <div id="comments-{{ visit['id'] }}" class="comments">
+                    <!-- Comments will be loaded here -->
+                </div>
+                <form class="comment-form" data-visit-id="{{ visit['id'] }}">
+                    <input type="text" class="comment-input" placeholder="Your Comment" required>
+                    <button type="submit">Add Comment</button>
+                </form>
             {% endfor %}
         </section>
     </main>

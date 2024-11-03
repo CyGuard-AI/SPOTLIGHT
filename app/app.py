@@ -3,8 +3,8 @@ from werkzeug.utils import secure_filename
 import os
 import mysql.connector
 
-app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = 'uploads/photos'
+app = Flask(__name__, static_url_path='/static', static_folder='static')
+app.config['UPLOAD_FOLDER'] = 'static/photos'
 
 # Ensure the upload directory exists
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
@@ -37,7 +37,7 @@ def init_db():
 @app.route('/')
 def index():
     conn = mysql.connector.connect(**db_config)
-    cursor = conn.cursor()
+    cursor = conn.cursor(dictionary=True)
     cursor.execute('SELECT * FROM visits')
     visits = cursor.fetchall()
     conn.close()
@@ -50,8 +50,16 @@ def add_visit():
         visit_date = request.form['visit_date']
         photo = request.files['photo']
         filename = secure_filename(photo.filename)
-        photo.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        photo_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        print(f"Saving photo to {photo_path}")
         
+        try:
+            photo.save(photo_path)
+            print("Photo saved successfully")
+        except Exception as e:
+            print(f"Failed to save photo: {e}")
+            return str(e), 500
+
         conn = mysql.connector.connect(**db_config)
         cursor = conn.cursor()
         cursor.execute('INSERT INTO visits (place_name, visit_date, photo) VALUES (%s, %s, %s)', 
@@ -64,11 +72,11 @@ def add_visit():
 @app.route('/get_visits', methods=['GET'])
 def get_visits():
     conn = mysql.connector.connect(**db_config)
-    cursor = conn.cursor()
+    cursor = conn.cursor(dictionary=True)
     cursor.execute('SELECT * FROM visits')
     visits = cursor.fetchall()
     conn.close()
-    return jsonify([{"id": visit[0], "place_name": visit[1], "visit_date": visit[2], "photo": visit[3]} for visit in visits]), 200
+    return jsonify(visits), 200
 
 @app.route('/add_comment', methods=['POST'])
 def add_comment():
@@ -84,12 +92,12 @@ def add_comment():
 @app.route('/get_comments/<int:visit_id>', methods=['GET'])
 def get_comments(visit_id):
     conn = mysql.connector.connect(**db_config)
-    cursor = conn.cursor()
+    cursor = conn.cursor(dictionary=True)
     cursor.execute('SELECT * FROM comments WHERE visit_id = %s', (visit_id,))
     comments = cursor.fetchall()
     conn.close()
-    return jsonify([{"id": comment[0], "visit_id": comment[1], "comment": comment[2]} for comment in comments]), 200
+    return jsonify(comments), 200
 
 if __name__ == '__main__':
     init_db()
-    app.run(debug=True, port=5010)
+    app.run(debug=True, port=5017)
